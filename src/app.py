@@ -172,20 +172,20 @@ def main():
                     school_data = load_school_data()
                     system_prompt = get_system_prompt(st.session_state.identity, school_data)
                     answer = call_api(system_prompt, user_question)
-                    
-                    if "网络错误" in answer or "请求失败" in answer:
-                        error_msg = f"❌ AI服务暂时不可用：{answer}"
-                        st.error(error_msg)
-                        st.markdown("📞 为您提供电话黄页兜底信息：")
-                        fallback_info = ""
-                        for dept, info in PHONE_BOOK.items():
-                            fallback_info += f"**{dept}** | 📱 {info['电话']}\n"
-                        st.markdown(fallback_info)
-                        full_answer = error_msg + "\n\n📞 为您提供电话黄页兜底信息：\n" + fallback_info
-                    else:
-                        answer = post_check(user_question, answer)
-                        st.markdown(answer)
-                        full_answer = answer
+                
+                if "网络错误" in answer or "请求失败" in answer:
+                    error_msg = f"❌ AI服务暂时不可用：{answer}"
+                    st.error(error_msg)
+                    st.markdown("📞 为您提供电话黄页兜底信息：")
+                    fallback_info = ""
+                    for dept, info in PHONE_BOOK.items():
+                        fallback_info += f"**{dept}** | 📱 {info['电话']}\n"
+                    st.markdown(fallback_info)
+                    full_answer = error_msg + "\n\n📞 为您提供电话黄页兜底信息：\n" + fallback_info
+                else:
+                    answer = post_check(user_question, answer)
+                    st.markdown(answer)
+                    full_answer = answer
             
             st.session_state.chat_history.append({"role": "assistant", "content": full_answer})
             
