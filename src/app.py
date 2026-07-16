@@ -199,7 +199,13 @@ def main():
         
         if len(st.session_state.qa_history) > 0:
             st.markdown("---")
-            st.subheader("📝 问答历史")
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.subheader("📝 问答历史")
+            with col2:
+                if st.button("🗑️ 清空历史"):
+                    st.session_state.qa_history = []
+                    st.rerun()
             
             for record in st.session_state.qa_history:
                 st.markdown(f"""
