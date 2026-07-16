@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from pathlib import Path
+from datetime import datetime
 
 API_URL = "https://api.siliconflow.cn/v1/chat/completions"
 API_KEY = "sk-fzzfbikzcvltveiogdxixyftsokesldzvmeabbqyvhsaanfm"
@@ -99,6 +100,8 @@ def main():
         st.session_state.user_input = ""
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
+    if "qa_history" not in st.session_state:
+        st.session_state.qa_history = []
 
     if st.session_state.page == "home":
         st.subheader("请选择您的身份")
@@ -107,19 +110,16 @@ def main():
             if st.button("🎒 新生", use_container_width=True):
                 st.session_state.identity = "新生"
                 st.session_state.page = "chat"
-                st.session_state.chat_history = []
                 st.rerun()
         with col2:
             if st.button("📚 在校生", use_container_width=True):
                 st.session_state.identity = "在校生"
                 st.session_state.page = "chat"
-                st.session_state.chat_history = []
                 st.rerun()
         with col3:
             if st.button("👨‍🏫 教师", use_container_width=True):
                 st.session_state.identity = "教师"
                 st.session_state.page = "chat"
-                st.session_state.chat_history = []
                 st.rerun()
         
         st.markdown("---")
@@ -137,6 +137,7 @@ def main():
         st.sidebar.markdown(f"当前身份：**{st.session_state.identity}**")
         if st.sidebar.button("🗑️ 清空对话"):
             st.session_state.chat_history = []
+            st.session_state.qa_history = []
             st.rerun()
         
         st.subheader(f"💬 小航（{st.session_state.identity}模式）")
@@ -159,6 +160,7 @@ def main():
         
         if st.button("发送") and user_question:
             st.session_state.user_input = user_question
+            current_time = datetime.now().strftime("%H:%M:%S")
             
             st.session_state.chat_history.append({"role": "user", "content": user_question})
             
@@ -186,6 +188,25 @@ def main():
                         full_answer = answer
             
             st.session_state.chat_history.append({"role": "assistant", "content": full_answer})
+            
+            record = {
+                "time": current_time,
+                "identity": st.session_state.identity,
+                "question": user_question,
+                "answer": full_answer
+            }
+            st.session_state.qa_history.insert(0, record)
+        
+        if len(st.session_state.qa_history) > 0:
+            st.markdown("---")
+            st.subheader("📝 问答历史")
+            
+            for record in st.session_state.qa_history:
+                st.markdown(f"""
+**[{record['time']}] {record['identity']}**  
+提问：{record['question']}  
+回答：{record['answer'][:100]}{'...' if len(record['answer']) > 100 else ''}
+""")
 
 if __name__ == "__main__":
     try:
